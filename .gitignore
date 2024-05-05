@@ -1,0 +1,8 @@
+*.vmdk
+*.mf
+*.ovf
+*.qcow2
+*.ova
+
+/*.tar
+/*.tar.gz
