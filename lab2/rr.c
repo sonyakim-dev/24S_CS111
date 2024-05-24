@@ -172,9 +172,9 @@ int main(int argc, char *argv[])
   u32 total_response_time = 0;
 
   /* Your code here */
-  if (quantum_length <= 0) return EINVAL;
+  if (quantum_length <= 0 || size == 0) return EINVAL;
 
-  // sort the processes by arrival time
+  /* sort the processes by arrival time */
   qsort(data, size, sizeof(struct process), compare_arrival_time);
 
   u32 curr_time = 0;
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 
   while (completed < size)
   {
-    // check if there is a process that has arrived
+    /* check if there is a process that has arrived */
     while (i < size && data[i].arrival_time <= curr_time)
     {
       struct process *new_process = &data[i];
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
       i++;
     }
 
-    // push back the previous process
+    /* push back the previous process */
     if (prev_process != NULL) {
       TAILQ_INSERT_TAIL(&list, prev_process, pointers);
     }
@@ -207,19 +207,18 @@ int main(int argc, char *argv[])
     // }
 
     if (!TAILQ_EMPTY(&list)) {
-      // pop front
+      /* pop front */
       struct process *curr_process = TAILQ_FIRST(&list);
       TAILQ_REMOVE(&list, curr_process, pointers);
 
-      // check if the process has responded
+      /* check if the process has responded */
       if (!curr_process->responded) {
         curr_process->response_time = curr_time - curr_process->arrival_time;
         total_response_time += curr_process->response_time;
         curr_process->responded = true;
-        // printf("PID: %d, Response Time: %d\n", curr_process->pid, curr_process->response_time);
       }
 
-      // if curr_process can be completed within the quantum
+      /* if curr_process can be completed within the quantum */
       if (curr_process->remain_time <= quantum_length) {
         curr_time += curr_process->remain_time;
         curr_process->remain_time = 0;
@@ -227,9 +226,7 @@ int main(int argc, char *argv[])
         total_waiting_time += curr_process->waiting_time;
         prev_process = NULL;
         completed++;
-        // printf("PID: %d, Waiting Time: %d\n", curr_process->pid, curr_process->waiting_time);
       }
-      // if curr_process cannot be completed within the quantum
       else {
         curr_time += quantum_length;
         curr_process->remain_time -= quantum_length;
